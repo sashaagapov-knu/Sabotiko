@@ -2,15 +2,17 @@
 #include <string>
 #include <limits>
 #include <fstream>
-#include <sstream> // Додано для зручного парсингу даних
+#include <sstream>
+#include <algorithm> // Додано для std::transform
+#include <cctype>    // Додано для std::tolower
 
 using namespace std;
 
 // --- КОНСТАНТИ ---
 const int MAX_BOOKS = 100;
 const int MAX_REVIEWS = 100;
-const string LIBRARY_FILE = "library_data.txt"; // Назва файлу для книг
-const string REVIEWS_FILE = "reviews_data.txt"; // Назва файлу для відгуків
+const string LIBRARY_FILE = "library_data.txt";
+const string REVIEWS_FILE = "reviews_data.txt";
 
 // --- СТРУКТУРИ ---
 struct Book
@@ -28,6 +30,22 @@ struct Review
     int rating;
 };
 
+// --- ДОПОМІЖНІ ФУНКЦІЇ ---
+
+// Функція для перетворення рядка в нижній регістр (ВИПРАВЛЕННЯ ДЕФЕКТУ)
+string toLower(string str) {
+    transform(str.begin(), str.end(), str.begin(),
+              [](unsigned char c){ return tolower(c); });
+    return str;
+}
+
+void clearInput() {
+    if (cin.fail()) {
+        cin.clear();
+    }
+    cin.ignore((numeric_limits<streamsize>::max)(), '\n');
+}
+
 // -------------ПРОТОТИПИ ФУНКЦІЙ----------------
 void inputBooks(struct Book library[], int& count);
 void displayBooks(struct Book library[], int count);
@@ -40,22 +58,10 @@ void displayReviews(struct Review reviews[], int reviewCount);
 void saveData(const Book library[], int count, const Review reviews[], int reviewCount);
 void loadData(Book library[], int& count, Review reviews[], int& reviewCount);
 
-// --- ДОПОМІЖНА ФУНКЦІЯ ОЧИЩЕННЯ ВВЕДЕННЯ ---
-void clearInput() {
-    if (cin.fail()) {
-        cin.clear();
-    }
-    cin.ignore((numeric_limits<streamsize>::max)(), '\n');
-}
-
 // =================================================================
 //  ФУНКЦІЇ УПРАВЛІННЯ ДАНИМИ
 // =================================================================
 
-/**
- * Зберігає дані про книги та відгуки у файли.
- * Формат: ID|Назва|Автор (для книг) та BookID|Користувач|Текст|Оцінка (для відгуків).
- */
 void saveData(const Book library[], int count, const Review reviews[], int reviewCount)
 {
     // 1. Збереження книг
@@ -64,7 +70,6 @@ void saveData(const Book library[], int count, const Review reviews[], int revie
     {
         for (int i = 0; i < count; i++)
         {
-            // Використовуємо | як роздільник
             libFile << library[i].id << "|" << library[i].title << "|" << library[i].author << "\n";
         }
         libFile.close();
@@ -78,7 +83,6 @@ void saveData(const Book library[], int count, const Review reviews[], int revie
     {
         for (int i = 0; i < reviewCount; i++)
         {
-            // Використовуємо | як роздільник
             revFile << reviews[i].bookId << "|" << reviews[i].userName << "|" << reviews[i].text << "|" << reviews[i].rating << "\n";
         }
         revFile.close();
@@ -87,12 +91,9 @@ void saveData(const Book library[], int count, const Review reviews[], int revie
     }
 }
 
-/**
- * Завантажує дані про книги та відгуки з файлів.
- */
 void loadData(Book library[], int& count, Review reviews[], int& reviewCount)
 {
-    count = 0; // Скидаємо лічильники
+    count = 0;
     reviewCount = 0;
 
     // 1. Завантаження книг
@@ -107,14 +108,12 @@ void loadData(Book library[], int& count, Review reviews[], int& reviewCount)
             Book tempBook;
             int segmentIndex = 0;
 
-            // Парсинг рядка з роздільником |
             while (getline(ss, segment, '|'))
             {
                 if (segmentIndex == 0) {
                     try {
                         tempBook.id = stoi(segment);
                     } catch (...) {
-                        // Ігноруємо рядок з помилкою
                         break;
                     }
                 } else if (segmentIndex == 1) {
@@ -147,7 +146,6 @@ void loadData(Book library[], int& count, Review reviews[], int& reviewCount)
             Review tempReview;
             int segmentIndex = 0;
 
-            // Парсинг рядка з роздільником |
             while (getline(ss, segment, '|'))
             {
                 if (segmentIndex == 0) {
@@ -183,7 +181,7 @@ void loadData(Book library[], int& count, Review reviews[], int& reviewCount)
 
 
 // =================================================================
-// 📖 ФУНКЦІЇ БІБЛІОТЕКИ (оновлені для використання clearInput)
+// 📖 ФУНКЦІЇ БІБЛІОТЕКИ
 // =================================================================
 
 void inputBooks(Book library[], int& count)
@@ -192,7 +190,7 @@ void inputBooks(Book library[], int& count)
     cout << "Скільки книг бажаєте додати? ";
     cin >> n;
 
-    clearInput(); // Використовуємо допоміжну функцію
+    clearInput();
 
     for (int i = 0; i < n; i++)
     {
@@ -205,13 +203,12 @@ void inputBooks(Book library[], int& count)
         cout << "\nКнига #" << count + 1 << endl;
 
         cout << "ID книги: ";
-        // Уникаємо `cin.ignore` тут, оскільки `clearInput` вже його викликала
         if (!(cin >> library[count].id)) {
             cout << "Помилка: Некоректний ID. Пропускаємо книгу.\n";
             clearInput();
             continue;
         }
-        clearInput(); // Очищуємо буфер після введення числа
+        clearInput();
 
         cout << "Назва книги: ";
         getline(cin, library[count].title);
@@ -267,7 +264,7 @@ void editBook(Book library[], int count)
             found = true;
             cout << "Знайдено книгу: " << library[i].title << " (" << library[i].author << ")\n";
 
-            clearInput(); // Очищуємо буфер після введення числа
+            clearInput();
 
             cout << "Введіть нову назву (або Enter, щоб залишити поточну: '" << library[i].title << "'): ";
             string newTitle;
@@ -318,7 +315,7 @@ void searchBooks(Book library[], int count)
         clearInput();
         return;
     }
-    clearInput(); // Очищуємо буфер після введення числа
+    clearInput();
 
     bool found = false;
 
@@ -353,11 +350,17 @@ void searchBooks(Book library[], int count)
         cout << "Введіть назву для пошуку (або її частину): ";
         getline(cin, searchTerm);
 
+        // ВИПРАВЛЕННЯ: Переведення пошукового терміна в нижній регістр
+        string lowerSearchTerm = toLower(searchTerm);
+
         cout << "\nРезультати пошуку за назвою '" << searchTerm << "':\n";
         for (int i = 0; i < count; i++)
         {
-            // Використовуємо .find для пошуку частини рядка
-            if (library[i].title.find(searchTerm) != string::npos)
+            // ВИПРАВЛЕННЯ: Переведення назви книги в нижній регістр
+            string lowerTitle = toLower(library[i].title);
+
+            // Порівняння в нижньому регістрі
+            if (lowerTitle.find(lowerSearchTerm) != string::npos)
             {
                 cout << "ID: " << library[i].id << " | Назва: " << library[i].title << " | Автор: " << library[i].author << endl;
                 found = true;
@@ -371,10 +374,17 @@ void searchBooks(Book library[], int count)
         cout << "Введіть автора для пошуку (або його частину): ";
         getline(cin, searchTerm);
 
+        // ВИПРАВЛЕННЯ: Переведення пошукового терміна в нижній регістр
+        string lowerSearchTerm = toLower(searchTerm);
+
         cout << "\nРезультати пошуку за автором '" << searchTerm << "':\n";
         for (int i = 0; i < count; i++)
         {
-            if (library[i].author.find(searchTerm) != string::npos)
+            // ВИПРАВЛЕННЯ: Переведення автора в нижній регістр
+            string lowerAuthor = toLower(library[i].author);
+
+            // Порівняння в нижньому регістрі
+            if (lowerAuthor.find(lowerSearchTerm) != string::npos)
             {
                 cout << "ID: " << library[i].id << " | Назва: " << library[i].title << " | Автор: " << library[i].author << endl;
                 found = true;
@@ -414,7 +424,7 @@ void addReview(Review reviews[], int& reviewCount)
         return;
     }
 
-    clearInput(); // Очищуємо буфер після введення числа
+    clearInput();
 
     cout << "Ваше ім'я: ";
     getline(cin, reviews[reviewCount].userName);
@@ -458,7 +468,7 @@ void displayReviews(Review reviews[], int reviewCount)
         cout << "До книги ID: " << reviews[i].bookId
             << " | Користувач: " << reviews[i].userName
             << " | Оцінка: " << reviews[i].rating << "/5\n"
-            << "   Відгук: " << reviews[i].text << endl;
+            << "   Відгук: " << reviews[i].text << endl;
         if (i < reviewCount - 1)
         {
             cout << "...\n";
@@ -473,9 +483,6 @@ void displayReviews(Review reviews[], int reviewCount)
 
 int main()
 {
-    // SetConsoleCP/SetConsoleOutputCP видалено, оскільки вони не потрібні в macOS/Xcode.
-    // Xcode працює з UTF-8, що добре підтримує кирилицю.
-
     Book library[MAX_BOOKS];
     int count = 0;
 
@@ -499,7 +506,7 @@ int main()
         cout << "4. Пошук книги\n";
         cout << "5. Додати відгук\n";
         cout << "6. Показати всі відгуки\n";
-        cout << "0. Вихід (і збереження даних)\n"; // Змінено опис
+        cout << "0. Вихід (і збереження даних)\n";
         cout << "============================\n";
         cout << "Ваш вибір: ";
 
