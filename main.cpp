@@ -457,7 +457,8 @@ void displayReviews(Review reviews[], int reviewCount)
 {
     if (reviewCount == 0)
     {
-        cout << "\nВідгуків поки немає.\n";
+        // ВИПРАВЛЕНО: Текст змінено на "Немає відгуків" згідно з вимогами баг-репорту
+        cout << "\nНемає відгуків\n";
         return;
     }
 
@@ -468,7 +469,7 @@ void displayReviews(Review reviews[], int reviewCount)
         cout << "До книги ID: " << reviews[i].bookId
             << " | Користувач: " << reviews[i].userName
             << " | Оцінка: " << reviews[i].rating << "/5\n"
-            << "   Відгук: " << reviews[i].text << endl;
+            << "   Відгук: " << reviews[i].text << endl;
         if (i < reviewCount - 1)
         {
             cout << "...\n";
