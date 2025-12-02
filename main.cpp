@@ -263,11 +263,24 @@ void editBook(Book library[], int count)
     }
 
     int targetId;
-    cout << "\nВведіть ID книги, яку бажаєте редагувати: ";
-    if (!(cin >> targetId)) {
-        cout << "Помилка: Некоректний ID.\n";
-        clearInput();
-        return;
+    
+    // 1. Цикл перевірки: поки користувач не введе число, питаємо знову
+    while (true) 
+    {
+        cout << "\nВведіть ID книги, яку бажаєте редагувати: ";
+        if (cin >> targetId)
+        {
+            // Успішно ввели число.
+            // Очищуємо буфер від залишку 'Enter', щоб наступні getline працювали коректно
+            clearInput(); 
+            break; 
+        }
+        else
+        {
+            // Якщо ввели букви або сміття
+            cout << "Помилка: Некоректний ввід. Будь ласка, введіть цифри.\n";
+            clearInput(); // Скидаємо помилку потоку і чистимо введення
+        }
     }
 
     bool found = false;
@@ -278,6 +291,8 @@ void editBook(Book library[], int count)
             found = true;
             cout << "Знайдено книгу: " << library[i].title << " (" << library[i].author << ")\n";
 
+            // Тут ми прибрали clearInput(), який був раніше, бо вже зробили це вище
+            // одразу після введення ID.
             clearInput();
 
             cout << "Введіть нову назву (або Enter, щоб залишити поточну: '" << library[i].title << "'): ";
