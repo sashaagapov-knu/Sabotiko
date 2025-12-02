@@ -207,13 +207,22 @@ void inputBooks(Book library[], int& count)
 
         cout << "\nКнига #" << count + 1 << endl;
 
-        cout << "ID книги: ";
-        if (!(cin >> library[count].id)) {
-            cout << "Помилка: Некоректний ID. Пропускаємо книгу.\n";
-            clearInput();
-            continue;
+      while (true) 
+        {
+            cout << "ID книги: ";
+            if (cin >> library[count].id) 
+            {
+                // Введено успішно число
+                clearInput(); // Очищаємо буфер від залишків (наприклад, Enter)
+                break;        // Виходимо з циклу перевірки
+            } 
+            else 
+            {
+                // Введено літери або спецсимволи
+                cout << "Помилка: ID має бути числом. Будь ласка, спробуйте ще раз.\n";
+                clearInput(); // Скидаємо помилку cin і очищаємо буфер
+            }
         }
-        clearInput();
 
         cout << "Назва книги: ";
         getline(cin, library[count].title);
