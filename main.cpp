@@ -32,10 +32,15 @@ struct Review
 
 // --- ДОПОМІЖНІ ФУНКЦІЇ ---
 
-// Функція для перетворення рядка в нижній регістр (ВИПРАВЛЕННЯ ДЕФЕКТУ)
 string toLower(string str) {
-    transform(str.begin(), str.end(), str.begin(),
-              [](unsigned char c){ return tolower(c); });
+    // проходимось по кожному символу рядка
+    for (int i = 0; i < str.length(); i++) {
+        // якщо символ - це велика англійська літера (по ASCII коду)
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            // додаємо 32 щоб "зсунути" її до маленьких літер
+            str[i] = str[i] + 32;
+        }
+    }
     return str;
 }
 
