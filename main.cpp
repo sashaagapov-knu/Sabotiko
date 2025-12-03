@@ -254,8 +254,49 @@ void displayBooks(Book library[], int count)
     cout << "-----------------------------------------\n";
 }
 
+// Допоміжна функція: перевіряє, чи рядок є цілим невід'ємним числом (лише цифри, без знаків чи літер)
+bool isValidNonNegativeInteger(const string& str)
+{
+    if (str.empty())
+    {
+        return false; // Порожній рядок — не число
+    }
+
+    // Кожен символ має бути цифрою ('0'–'9')
+    for (char c : str)
+    {
+        if (!isdigit(static_cast<unsigned char>(c)))
+        {
+            return false; // Знайдено нецифровий символ
+        }
+    }
+
+    return true; // Успішна валідація
+}
+
+// Допоміжна функція: перевіряє, чи рядок є цілим невід'ємним числом (лише цифри, без знаків чи літер)
+bool isValidNonNegativeInteger(const string& str)
+{
+    if (str.empty())
+    {
+        return false; // Порожній рядок — не число
+    }
+
+    // Кожен символ має бути цифрою ('0'–'9')
+    for (char c : str)
+    {
+        if (!isdigit(static_cast<unsigned char>(c)))
+        {
+            return false; // Знайдено нецифровий символ
+        }
+    }
+
+    return true; // Успішна валідація
+}
+
 void editBook(Book library[], int count)
 {
+    // Перевірка наявності книг
     if (count == 0)
     {
         cout << "\nБібліотека порожня. Немає чого редагувати.\n";
@@ -263,64 +304,69 @@ void editBook(Book library[], int count)
     }
 
     int targetId;
-    
-    // 1. Цикл перевірки: поки користувач не введе число, питаємо знову
-    while (true) 
+    string input;
+
+    // Цикл для надійного введення ID (тільки цифри, включно з "0")
+    while (true)
     {
         cout << "\nВведіть ID книги, яку бажаєте редагувати: ";
-        if (cin >> targetId)
+        getline(cin, input); // Читаємо весь рядок
+
+        if (isValidNonNegativeInteger(input))
         {
-            // Успішно ввели число.
-            // Очищуємо буфер від залишку 'Enter', щоб наступні getline працювали коректно
-            clearInput(); 
-            break; 
+            targetId = stoi(input); // Перетворюємо на ціле число
+            break; // Коректний ввід — виходимо з циклу
         }
         else
         {
-            // Якщо ввели букви або сміття
-            cout << "Помилка: Некоректний ввід. Будь ласка, введіть цифри.\n";
-            clearInput(); // Скидаємо помилку потоку і чистимо введення
+            cout << "Помилка: ID має містити лише цифри (наприклад: 0, 123). Літери, пробіли чи символи заборонені.\n";
+            // Повторний запит — без додаткових дій, бо getline читає весь рядок
         }
     }
 
-    bool found = false;
+    // Пошук книги за ID
+    int bookIndex = -1;
     for (int i = 0; i < count; i++)
     {
         if (library[i].id == targetId)
         {
-            found = true;
-            cout << "Знайдено книгу: " << library[i].title << " (" << library[i].author << ")\n";
-
-            // Тут ми прибрали clearInput(), який був раніше, бо вже зробили це вище
-            // одразу після введення ID.
-            clearInput();
-
-            cout << "Введіть нову назву (або Enter, щоб залишити поточну: '" << library[i].title << "'): ";
-            string newTitle;
-            getline(cin, newTitle);
-
-            cout << "Введіть нового автора (або Enter, щоб залишити поточного: '" << library[i].author << "'): ";
-            string newAuthor;
-            getline(cin, newAuthor);
-
-            if (!newTitle.empty())
-            {
-                library[i].title = newTitle;
-            }
-            if (!newAuthor.empty())
-            {
-                library[i].author = newAuthor;
-            }
-
-            cout << "Дані книги (ID: " << library[i].id << ") успішно оновлено!\n";
+            bookIndex = i;
             break;
         }
     }
 
-    if (!found)
+    if (bookIndex == -1)
     {
         cout << "Книгу з ID " << targetId << " не знайдено.\n";
+        return;
     }
+
+    // Показ поточної інформації
+    cout << "Знайдено книгу: " << library[bookIndex].title
+         << " (" << library[bookIndex].author << ")\n";
+
+    // Ввід нової назви (опціонально)
+    string newTitle;
+    cout << "Введіть нову назву (або Enter, щоб залишити без змін): ";
+    getline(cin, newTitle);
+
+    // Ввід нового автора (опціонально)
+    string newAuthor;
+    cout << "Введіть нового автора (або Enter, щоб залишити без змін): ";
+    getline(cin, newAuthor);
+
+    // Оновлення лише непорожніх полів
+    if (!newTitle.empty())
+    {
+        library[bookIndex].title = newTitle;
+    }
+    if (!newAuthor.empty())
+    {
+        library[bookIndex].author = newAuthor;
+    }
+
+    // Підтвердження
+    cout << "Дані книги (ID: " << library[bookIndex].id << ") успішно оновлено!\n";
 }
 
 
