@@ -186,27 +186,57 @@ void loadData(Book library[], int& count, Review reviews[], int& reviewCount)
 
 void inputBooks(Book library[], int& count)
 {
-    int n;
+int n;
+string str; // Буферний рядок
+
+while (true)
+{
     cout << "Скільки книг бажаєте додати? ";
-    if (!(cin >> n) || n <= 0) 
+    // Використовуємо getline, щоб зчитати все, що ввів користувач (навіть пробіли)
+    getline(cin, str);
+
+    // Перевірка на порожній ввід (якщо просто натиснули Enter)
+    if (str.length() == 0) continue;
+
+    bool flag = true; // Прапорець: true - все добре, false - є помилка
+
+    // Перевіряємо кожен символ рядка
+    for (int i = 0; i < str.length(); i++)
     {
-        cout << "Помилка: Кількість книг має бути додатним цілим числом (більше 0).\n";
-        clearInput(); // Очищає буфер введення, щоб прибрати некоректні дані
-        return;       // Викидає користувача назад у меню, не продовжуючи функцію
+        // Якщо символ НЕ цифра (перевірка за кодами ASCII або функцією isdigit)
+        if (!isdigit((unsigned char)str[i]))
+        {
+            flag = false; // Знайшли літеру або пробіл - це погано
+            break;
+        }
     }
 
+    if (flag == true)
     clearInput();
 
     for (int i = 0; i < n; i++)
     {
-        if (count >= MAX_BOOKS)
+        // Перетворюємо рядок у число (atoi - ASCII to Integer)
+        n = atoi(str.c_str());
+
+        if (n > 0)
         {
-            cout << "Досягнуто максимальну кількість книг у бібліотеці.\n";
-            return;
+            break; // Число правильне і додатне, виходимо
         }
+        else
+        {
+            cout << "Помилка: Число має бути більше 0.\n";
+        }
+    }
+    else
+    {
+        cout << "Помилка: Введіть тільки цифри!\n";
+    }
+}
 
-        cout << "\nКнига #" << count + 1 << endl;
+    clearInput(); // Використовуємо допоміжну функцію
 
+  while (true) 
       while (true) 
         {
             cout << "ID книги: ";
